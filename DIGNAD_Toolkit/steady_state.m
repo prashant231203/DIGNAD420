@@ -1,0 +1,82 @@
+%% System of Equations for Initial Steady State
+% IMF RES-DM, 2016, 2022
+
+function [f, xout] = f(x,beta_t,delta_x,delta_n,delta_zi,delta_za,tau,psi_x,psi_n,xi_n,xi_x,alpha_x,alpha_n,g,epsilon,eta,ho,rstar,s_o,rho_x,rho_m,a_k,a_z,miu,ro,To,do,bo,zio,zao,b_n,b_x,P_zo,P_x,P_mm,P_m,a_no,a_xo,inc,r_dco,incdc,dco,incb,inciz,lambda,eo,eho,s_s,a_ratio,remito,grantso,oilro,i_zio,i_zao,incgrants,incremit,sigma_x,sigma_n,nu,bstaro,q_no,q_xo,yo,etag,nug,Savo,zteo,kappah,sigmah,phhi,hlo,wo,Lo, a_za)
+f = zeros(length(x),1);
+b = incb*bo;
+d = inc*do;
+dc = incdc*dco;
+i_zi =i_zio+inciz;
+i_za =i_zao+inciz;
+grants =incgrants*grantso;
+oilr = oilro;
+remit =incremit*remito;
+r_do = 0;
+
+DDo = (r_do-g)*do/(1+g) + (ro-g)*bo/(1+g) + (rstar+nug-g)*dco/(1+g) + P_zo*(i_zio+(1+a_za)*i_zao) - miu*s_s*zio - (grantso + oilro) - (rstar-g)*Savo/(1+g);
+   
+bstar = x(1);
+c = x(2);
+c_n = x(3);
+e = x(4);
+eh = x(5);
+h = x(6);
+i_n = x(7);
+i_x = x(8);
+k_n = x(9);
+k_x = x(10);
+L_n = x(11);
+L_x = x(12);
+P = x(13);
+P_k = x(14);
+P_n = x(15);
+P_z = x(16);
+r = x(17);
+r_n = x(18);
+r_x = x(19);
+T = x(20);
+q_n = x(21);
+q_x = x(22);
+w = x(23);
+y = x(24);
+zi = x(25);
+zie = x(26);
+za = x(27);
+zae = x(28);
+L  = x(29);
+Lh = x(30);
+hl = x(31);
+
+f(1) = 1 + r - (1+rstar+nu+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo)))/(1-eta*(bstar-bstaro));
+f(2) = bstar + d + dc - Savo - P*c - P_k*(i_x+i_n) - P_z*(i_zi + (1+a_za)*i_za) - (1+r_do)*d/(1+g) - (1+rstar+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo)))*dc/(1+g) - (1+rstar+nu+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo)))*bstar/(1+g) + y + remit + (grants+oilr) + (1+rstar)*Savo/(1+g);
+f(3) = c_n - (1-rho_x-rho_m)*P_n^(-epsilon)*(e+eh)/(rho_m*P_m^(1-epsilon)+rho_x*P_x^(1-epsilon)+(1-rho_x-rho_m)*P_n^(1-epsilon));
+f(4) = e + eh - P*c;
+f(5) = (1+h)*eh - (1-hl)*w*Lh - (a_ratio/(1+a_ratio))*(T+remit);
+f(6) = h*(e+eh) - ho*(eo+eho) - ((r_do-g)*d/(1+g) + (r-g)*P*b/(1+g) + (rstar+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo))-g)*dc/(1+g) + P_z*(i_zi + (1+a_za)*i_za) + T-To - miu*zie - (grants+oilr) - (rstar-g)*Savo/(1+g)+ hl*w*(1+a_ratio)*L - hlo*wo*(1+a_ratio)*Lo - DDo);
+f(7) = T-To + lambda*((r_do-g)*d/(1+g) + (r-g)*P*b/(1+g) + (rstar+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo))-g)*dc/(1+g) +  P_z*(i_zi + (1+a_za)*i_za) + ho*(e+eh-eo-eho)+ hlo*(1+a_ratio)*(w*L - wo*Lo) - miu*zie-(grants + oilr) - (rstar-g)*Savo/(1+g) -DDo);  
+f(8) = i_n - (delta_n+g)*k_n;
+f(9) = i_x - (delta_x+g)*k_x;
+f(10) = zi - i_zi/(delta_zi+g);
+f(11) = L + Lh - L_x - L_n;
+f(12) = r_n - alpha_n*P_n*q_n/k_n;
+f(13) = r_x - alpha_x*P_x*q_x/k_x;
+f(14) = q_n - a_no*(q_n/q_no)^sigma_n*k_n^(xi_n+alpha_n)*(b_n*zae + zie)^psi_n*L_n^(1-alpha_n);
+f(15) = P - (rho_m*P_m^(1-epsilon)+rho_x*P_x^(1-epsilon)+(1-rho_x-rho_m)*P_n^(1-epsilon))^(1/(1-epsilon));
+f(16) = P_k - P_mm - a_k*P_n;
+f(17) = w - P_n*(1-alpha_n)*q_n/L_n;
+f(18) = P_z - P_mm - a_z*P_n;
+f(19) = r - (1/beta_t)*(1+g) + 1;
+f(20) = r_n - P_k*(delta_n+r);
+f(21) = r_x - P_k*(delta_x+r);
+f(22) = q_n - c_n - a_k*(i_x+i_n) - a_z*(i_zi + (1+a_za)*i_za);
+f(23) = q_x - a_xo*(q_x/q_xo)^sigma_x*k_x^(xi_x+alpha_x)*(b_x*zae + zie)^psi_x*L_x^(1-alpha_x);
+f(24) = w - P_x*(1-alpha_x)*q_x/L_x;
+f(25) = y - P_n*q_n - P_x*q_x;
+f(26) = zie - s_s*zio - s_o*(zi-zio);
+f(27) = za - i_za/(delta_za+g);
+f(28) = zae - s_s*zao - s_o*(za-zao);
+f(29) = P*kappah*(L^phhi)*(1+h)- (1-hl)*w*((e)^(-sigmah));
+f(30) = Lh - a_ratio*L ;
+f(31) = hl*w*(1+a_ratio)*L - hlo*wo*(1+a_ratio)*Lo - (1-lambda)*(((r_do-g)*d/(1+g) + (r-g)*P*b/(1+g) + (rstar+nug*exp(etag*(d/y+dc/y-do/yo-dco/yo))-g)*dc/(1+g) + P_z*(i_zi + (1+a_za)*i_za) + T-To + h*(e+eh) - ho*(eo+eho) - miu*zie - (grants+oilr) - (rstar-g)*Savo/(1+g) - DDo));
+
+xout = [ bstar; c; c_n; e; eh; h; i_n; i_x; k_n; k_x; L_n; L_x; P; P_k; P_n; P_z; r; r_n; r_x; T; q_n; q_x; w; y; zi; zie; za; zae; L; Lh; hl ];
